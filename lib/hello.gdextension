@@ -1,0 +1,6 @@
+[configuration]
+entry_symbol = "hello_gdextension_main"
+
+[libraries]
+windows = "libhello.gdextension.dll"
+;linux = "libhello.gdextension.so"
