@@ -5,12 +5,16 @@
 
 #define gdextension_hash_print 2648703342 // fetch from `include/extension_api.json`
 
+// GDExtension interface pointer
 const GDExtensionInterface* INTERFACE;
+// GDExtension API pointers
 GDExtensionPtrConstructor StringName_from_String;
 GDExtensionPtrDestructor destroy_StringName;
 GDExtensionPtrDestructor destroy_String;
+// Library StringNames
+GDExtensionStringName stringName_print;
 
-GDExtensionStringName CString_to_StringName(const char* cstring) {
+GDExtensionStringName CString2StringName(const char* cstring) {
   void* string;
   INTERFACE->string_new_with_latin1_chars(&string, cstring);
   GDExtensionStringName string_name;
@@ -22,20 +26,25 @@ GDExtensionStringName CString_to_StringName(const char* cstring) {
 void hello_gdextension_initialize(void *userdata, GDExtensionInitializationLevel p_level) {
   if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
     // Save used pointers
-    StringName_from_String = INTERFACE->variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // 2nd constructor
+    StringName_from_String = INTERFACE->variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // Constructor #2
     destroy_StringName = INTERFACE->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
     destroy_String = INTERFACE->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
-    
+    // Build StringNames
+    stringName_print = CString2StringName("print");
   }
+  
   printf("initialized at level %u\n", p_level);
 }
 void hello_gdextension_deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
   if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
+    // Destroy StringNames
+    destroy_StringName(&stringName_print);
     // Unset stale pointers
     StringName_from_String = NULL;
     destroy_StringName = NULL;
     destroy_String = NULL;
   }
+  
   printf("deinitialized at level %u\n", p_level);
 }
 
