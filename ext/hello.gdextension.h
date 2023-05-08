@@ -3,7 +3,7 @@
 
 typedef void* GDExtensionString;
 typedef void* GDExtensionStringName;
-typedef void* GDExtensionVariant;
+typedef uint8_t GDExtensionVariant[24]; // Fetch size from `include/extension_api.json`
 
 // GDExtension interface pointer
 extern const GDExtensionInterface* INTERFACE;
@@ -21,7 +21,7 @@ void gdextension_print(const char* string);
 
 GDExtensionBool hello_gdextension_main(
   const GDExtensionInterface *p_interface,
-  GDExtensionClassLibraryPtr p_library,
+  __attribute__((unused)) GDExtensionClassLibraryPtr p_library,
   GDExtensionInitialization *r_initialization
 );
 

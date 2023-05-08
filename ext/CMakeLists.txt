@@ -2,5 +2,4 @@ cmake_minimum_required(VERSION 3.25)
 project(hello.gdextension C)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../lib)
-
 add_library(hello.gdextension SHARED hello.gdextension.c)
