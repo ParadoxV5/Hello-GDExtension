@@ -3,19 +3,10 @@
 #include "include/godot/gdextension_interface.h"
 #include "hello.gdextension.h"
 
-#define gdextension_hash_print 2648703342 // fetch from `include/extension_api.json`
-
-// GDExtension interface pointer
-const GDExtensionInterface* INTERFACE;
-// GDExtension API pointers
-GDExtensionPtrConstructor StringName_from_String;
-GDExtensionPtrDestructor destroy_StringName;
-GDExtensionPtrDestructor destroy_String;
-// Library StringNames
-GDExtensionStringName stringName_print;
+#define HASH_print 2648703342 // fetch from `include/extension_api.json`
 
 GDExtensionStringName CString2StringName(const char* cstring) {
-  void* string;
+  GDExtensionString string;
   INTERFACE->string_new_with_latin1_chars(&string, cstring);
   GDExtensionStringName string_name;
   StringName_from_String(&string_name, (GDExtensionConstTypePtr[1]) {&string});
@@ -29,20 +20,22 @@ void hello_gdextension_initialize(void *userdata, GDExtensionInitializationLevel
     StringName_from_String = INTERFACE->variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // Constructor #2
     destroy_StringName = INTERFACE->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
     destroy_String = INTERFACE->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
-    // Build StringNames
-    stringName_print = CString2StringName("print");
+    // Fetch GDScript methods
+    
+    GDExtensionStringName stringName_print = CString2StringName("print");
+    global_print = INTERFACE->variant_get_ptr_utility_function(&stringName_print, HASH_print);
+    destroy_StringName(&stringName_print);
   }
   
   printf("initialized at level %u\n", p_level);
 }
 void hello_gdextension_deinitialize(void *userdata, GDExtensionInitializationLevel p_level) {
   if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
-    // Destroy StringNames
-    destroy_StringName(&stringName_print);
     // Unset stale pointers
     StringName_from_String = NULL;
     destroy_StringName = NULL;
     destroy_String = NULL;
+    global_print = NULL;
   }
   
   printf("deinitialized at level %u\n", p_level);
