@@ -1,12 +1,11 @@
-#include <stdio.h>
 #include <stdbool.h>
-#include "include/godot/gdextension_interface.h"
+#include <stdio.h>
 #include "hello.gdextension.h"
 
 #define HASH_print 2648703342 // Fetch hash from `include/extension_api.json`
 
 // GDExtension interface pointer
-const GDExtensionInterface* INTERFACE;
+GDExtensionInterfaceGetProcAddress GetProcAddress;
 // GDExtension API pointers
 GDExtensionPtrConstructor stringName_from_String;
 GDExtensionPtrDestructor destroy_StringName;
@@ -66,15 +65,15 @@ void hello_gdextension_deinitialize(__attribute__((unused)) void *userdata, GDEx
 }
 
 GDExtensionBool hello_gdextension_main(
-  const GDExtensionInterface *p_interface,
-  __attribute__((unused)) GDExtensionClassLibraryPtr p_library,
-  GDExtensionInitialization *r_initialization
+  GDExtensionInterfaceGetProcAddress p_get_proc_address,
+  GDExtensionClassLibraryPtr p_library,
+  GDExtensionInitialization* r_initialization
 ) {
   // Set up de/initialization functions
   r_initialization->initialize = &hello_gdextension_initialize;
   r_initialization->deinitialize = &hello_gdextension_deinitialize;
   // Save the GDExtensionInterface
-  INTERFACE = p_interface;
+  GetProcAddress = p_get_proc_address;
   // Success
   return true;
 }

@@ -1,3 +1,5 @@
+#include "include/godot/gdextension_interface.h"
+
 #ifndef HELLO_GDEXTENSION_H
 #define HELLO_GDEXTENSION_H
 
@@ -6,7 +8,7 @@ typedef void* GDExtensionStringName;
 typedef uint8_t GDExtensionVariant[24]; // Fetch size from `include/extension_api.json`
 
 // GDExtension interface pointer
-extern const GDExtensionInterface* INTERFACE;
+extern GDExtensionInterfaceGetProcAddress GetProcAddress;
 // GDExtension API pointers
 extern GDExtensionPtrConstructor stringName_from_String;
 extern GDExtensionPtrDestructor destroy_StringName;
@@ -20,9 +22,9 @@ GDExtensionStringName CString2StringName(const char* cstring);
 void gdextension_print(const char* string);
 
 GDExtensionBool hello_gdextension_main(
-  const GDExtensionInterface *p_interface,
-  __attribute__((unused)) GDExtensionClassLibraryPtr p_library,
-  GDExtensionInitialization *r_initialization
+  GDExtensionInterfaceGetProcAddress p_get_proc_address,
+  GDExtensionClassLibraryPtr p_library,
+  GDExtensionInitialization* r_initialization
 );
 
 #endif
