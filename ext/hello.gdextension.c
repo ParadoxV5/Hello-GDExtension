@@ -36,13 +36,21 @@ void gdextension_print(const char* cstring) {
 void hello_gdextension_initialize(__attribute__((unused)) void *userdata, GDExtensionInitializationLevel p_level) {
   if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
     // Save API pointers
-    stringName_from_String = INTERFACE->variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // Constructor #2
-    destroy_StringName = INTERFACE->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
-    destroy_String = INTERFACE->variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
-    variant_from_String = INTERFACE->get_variant_from_type_constructor(GDEXTENSION_VARIANT_TYPE_STRING);
+    stringName_from_String = (
+      (GDExtensionInterfaceVariantGetPtrConstructor)GetProcAddress("variant_get_ptr_constructor")
+    )(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // Constructor #2
+    GDExtensionInterfaceVariantGetPtrDestructor variant_get_ptr_destructor =
+      (GDExtensionInterfaceVariantGetPtrDestructor)GetProcAddress("variant_get_ptr_destructor");
+    destroy_StringName = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
+    destroy_String = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
+    variant_from_String = (
+      (GDExtensionInterfaceGetVariantFromTypeConstructor)GetProcAddress("get_variant_from_type_constructor")
+    )(GDEXTENSION_VARIANT_TYPE_STRING);
     // Fetch GDScript methods
     GDExtensionStringName stringName_print = CString2StringName("print");
-    global_print = INTERFACE->variant_get_ptr_utility_function(&stringName_print, HASH_print);
+    global_print = (
+      (GDExtensionInterfaceVariantGetPtrUtilityFunction)GetProcAddress("variant_get_ptr_utility_function")
+    )(&stringName_print, HASH_print);
     destroy_StringName(&stringName_print);
     // Hello, World!
     gdextension_print("Hello, GDExtension!");
