@@ -11,12 +11,16 @@ GDExtensionPtrConstructor stringName_from_String;
 GDExtensionPtrDestructor destroy_StringName;
 GDExtensionPtrDestructor destroy_String;
 GDExtensionVariantFromTypeConstructorFunc variant_from_String;
+// GDExtension pointers
+GDExtensionInterfaceStringNewWithLatin1Chars string_new_with_latin1_chars;
+GDExtensionInterfaceStringNewWithUtf8Chars string_new_with_utf8_chars;
+GDExtensionInterfaceVariantDestroy variant_destroy;
 // Library Functions
 GDExtensionPtrUtilityFunction global_print;
 
 GDExtensionStringName CString2StringName(const char* cstring) {
   GDExtensionString string;
-  INTERFACE->string_new_with_latin1_chars(&string, cstring);
+  string_new_with_latin1_chars(&string, cstring);
   GDExtensionStringName string_name;
   stringName_from_String(&string_name, (GDExtensionConstTypePtr[1]) {&string});
   destroy_String(&string);
@@ -25,17 +29,17 @@ GDExtensionStringName CString2StringName(const char* cstring) {
 
 void gdextension_print(const char* cstring) {
   GDExtensionString string;
-  INTERFACE->string_new_with_utf8_chars(&string, cstring);
+  string_new_with_utf8_chars(&string, cstring);
   GDExtensionVariant variant;
   variant_from_String(&variant, &string);
   global_print(NULL, (GDExtensionConstVariantPtr[1]) {&variant}, 1);
-  INTERFACE->variant_destroy(&variant);
+  variant_destroy(&variant);
   destroy_String(&string);
 }
 
 void hello_gdextension_initialize(__attribute__((unused)) void *userdata, GDExtensionInitializationLevel p_level) {
   if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
-    // Save API pointers
+    // GDExtension API pointers
     stringName_from_String = (
       (GDExtensionInterfaceVariantGetPtrConstructor)GetProcAddress("variant_get_ptr_constructor")
     )(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // Constructor #2
@@ -46,6 +50,10 @@ void hello_gdextension_initialize(__attribute__((unused)) void *userdata, GDExte
     variant_from_String = (
       (GDExtensionInterfaceGetVariantFromTypeConstructor)GetProcAddress("get_variant_from_type_constructor")
     )(GDEXTENSION_VARIANT_TYPE_STRING);
+    // GDExtension pointers
+    string_new_with_latin1_chars = (GDExtensionInterfaceStringNewWithLatin1Chars)GetProcAddress("string_new_with_latin1_chars");
+    string_new_with_utf8_chars = (GDExtensionInterfaceStringNewWithUtf8Chars)GetProcAddress("string_new_with_utf8_chars");
+    variant_destroy = (GDExtensionInterfaceVariantDestroy)GetProcAddress("variant_destroy");
     // Fetch GDScript methods
     GDExtensionStringName stringName_print = CString2StringName("print");
     global_print = (
@@ -67,6 +75,9 @@ void hello_gdextension_deinitialize(__attribute__((unused)) void *userdata, GDEx
     stringName_from_String = NULL;
     destroy_StringName = NULL;
     destroy_String = NULL;
+    string_new_with_latin1_chars = NULL;
+    string_new_with_utf8_chars = NULL;
+    variant_destroy = NULL;
   }
   
   printf("deinitialized at level %u\n", p_level);

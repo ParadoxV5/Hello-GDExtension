@@ -14,6 +14,10 @@ extern GDExtensionPtrConstructor stringName_from_String;
 extern GDExtensionPtrDestructor destroy_StringName;
 extern GDExtensionPtrDestructor destroy_String;
 extern GDExtensionVariantFromTypeConstructorFunc variant_from_String;
+// GDExtension pointers
+extern GDExtensionInterfaceStringNewWithLatin1Chars string_new_with_latin1_chars;
+extern GDExtensionInterfaceStringNewWithUtf8Chars string_new_with_utf8_chars;
+extern GDExtensionInterfaceVariantDestroy variant_destroy;
 // Library Functions
 extern GDExtensionPtrUtilityFunction global_print;
 
