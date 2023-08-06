@@ -3,5 +3,5 @@ entry_symbol = "hello_gdextension_main"
 compatibility_minimum = 4.1
 
 [libraries]
-windows = "libhello.gdextension.dll"
-;linux = "libhello.gdextension.so"
+windows = ".out/libhello.gdextension.dll"
+;linux = ".out/libhello.gdextension.so"

@@ -1,4 +1,4 @@
-#include "include/godot/gdextension_interface.h"
+#include <gdextension_interface.h>
 
 #ifndef HELLO_GDEXTENSION_H
 #define HELLO_GDEXTENSION_H

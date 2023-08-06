@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.25)
+project(hello.gdextension C)
+set(CMAKE_C_STANDARD 17)
+include_directories(include/godot)
+add_library(hello.gdextension SHARED src/hello.gdextension.c)
