@@ -1,4 +1,4 @@
-[submodule "ext/include"]
+[submodule "godot-headers"]
 	path = addons/hello-gdextension/include
 	url = https://github.com/ParadoxV5/godot-headers.git
 	branch = 4.x
