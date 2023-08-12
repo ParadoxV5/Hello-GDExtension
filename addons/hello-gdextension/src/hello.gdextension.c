@@ -89,6 +89,7 @@ GDExtensionBool hello_gdextension_main(
   GDExtensionInitialization* r_initialization
 ) {
   // Set up de/initialization functions
+  r_initialization->minimum_initialization_level = GDEXTENSION_INITIALIZATION_SCENE;
   r_initialization->initialize = &hello_gdextension_initialize;
   r_initialization->deinitialize = &hello_gdextension_deinitialize;
   // Save the GDExtensionInterface
