@@ -68,8 +68,6 @@ void hello_gdextension_initialize(__attribute__((unused)) void *userdata, GDExte
 }
 void hello_gdextension_deinitialize(__attribute__((unused)) void *userdata, GDExtensionInitializationLevel p_level) {
   if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
-    // Goodbye, World!
-    gdextension_print("Goodbye, GDExtension!");
     // Unset stale pointers
     global_print = NULL;
     stringName_from_String = NULL;
