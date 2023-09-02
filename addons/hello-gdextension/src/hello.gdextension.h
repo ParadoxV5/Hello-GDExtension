@@ -25,9 +25,9 @@ GDExtensionStringName CString2StringName(const char* cstring);
 
 void gdextension_print(const char* string);
 
-GDExtensionBool hello_gdextension_main(
+__attribute__((unused)) GDExtensionBool hello_gdextension_main(
   GDExtensionInterfaceGetProcAddress p_get_proc_address,
-  GDExtensionClassLibraryPtr p_library,
+  __attribute__((unused)) GDExtensionClassLibraryPtr p_library,
   GDExtensionInitialization* r_initialization
 );
 

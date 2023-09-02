@@ -4,18 +4,19 @@
 
 #define HASH_print 2648703342 // Fetch hash from `include/extension_api.json`
 
-// GDExtension interface pointer
+// GDExtension function
 GDExtensionInterfaceGetProcAddress GetProcAddress;
-// GDExtension API pointers
-GDExtensionPtrConstructor stringName_from_String;
-GDExtensionPtrDestructor destroy_StringName;
-GDExtensionPtrDestructor destroy_String;
-GDExtensionVariantFromTypeConstructorFunc variant_from_String;
-// GDExtension pointers
+// GDExtension String / Variant functions
 GDExtensionInterfaceStringNewWithLatin1Chars string_new_with_latin1_chars;
 GDExtensionInterfaceStringNewWithUtf8Chars string_new_with_utf8_chars;
+GDExtensionPtrDestructor destroy_String;
+// GDExtension Variant functions
+GDExtensionVariantFromTypeConstructorFunc variant_from_String;
 GDExtensionInterfaceVariantDestroy variant_destroy;
-// Library Functions
+// GDExtension StringName functions
+GDExtensionPtrConstructor stringName_from_String;
+GDExtensionPtrDestructor destroy_StringName;
+// GDScript functions
 GDExtensionPtrUtilityFunction global_print;
 
 GDExtensionStringName CString2StringName(const char* cstring) {
@@ -81,9 +82,9 @@ void hello_gdextension_deinitialize(__attribute__((unused)) void *userdata, GDEx
   printf("deinitialized at level %u\n", p_level);
 }
 
-GDExtensionBool hello_gdextension_main(
+__attribute__((used)) GDExtensionBool hello_gdextension_main(
   GDExtensionInterfaceGetProcAddress p_get_proc_address,
-  GDExtensionClassLibraryPtr p_library,
+  __attribute__((unused)) GDExtensionClassLibraryPtr p_library,
   GDExtensionInitialization* r_initialization
 ) {
   // Set up de/initialization functions
