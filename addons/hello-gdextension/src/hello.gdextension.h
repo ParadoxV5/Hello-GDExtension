@@ -3,9 +3,13 @@
 #ifndef HELLO_GDEXTENSION_H
 #define HELLO_GDEXTENSION_H
 
+/* Godot Engine Internal Types (check sizes with `include/extension_api.json`)
+  In GDScript, everything is a Variant;
+  but in C/++ lands, “int”, “String” and etc. refer to the internal data which Variants wrap for GDScript convenience.
+*/
 typedef void* GDExtensionString;
 typedef void* GDExtensionStringName;
-typedef uint8_t GDExtensionVariant[24]; // Fetch size from `include/extension_api.json`
+typedef uint8_t GDExtensionVariant[40];
 
 // GDExtension interface pointer
 extern GDExtensionInterfaceGetProcAddress GetProcAddress;
