@@ -2,97 +2,78 @@
 #include <stdio.h>
 #include "hello.gdextension.h"
 
-#define HASH_print 2648703342 // Fetch hash from `include/extension_api.json`
-
-// GDExtension function
-GDExtensionInterfaceGetProcAddress GetProcAddress;
-// GDExtension String / Variant functions
+// GDExtension pointers
 GDExtensionInterfaceStringNewWithLatin1Chars string_new_with_latin1_chars;
-GDExtensionInterfaceStringNewWithUtf8Chars string_new_with_utf8_chars;
-GDExtensionPtrDestructor destroy_String;
-// GDExtension Variant functions
-GDExtensionVariantFromTypeConstructorFunc variant_from_String;
+GDExtensionPtrDestructor string_destroy;
+GDExtensionVariantFromTypeConstructorFunc variant_from_string;
 GDExtensionInterfaceVariantDestroy variant_destroy;
-// GDExtension StringName functions
-GDExtensionPtrConstructor stringName_from_String;
-GDExtensionPtrDestructor destroy_StringName;
-// GDScript functions
-GDExtensionPtrUtilityFunction global_print;
-
-GDExtensionStringName CString2StringName(const char* cstring) {
-  GDExtensionString string;
-  string_new_with_latin1_chars(&string, cstring);
-  GDExtensionStringName string_name;
-  stringName_from_String(&string_name, (GDExtensionConstTypePtr[1]) {&string});
-  destroy_String(&string);
-  return string_name;
-}
+// Godot Library Functions
+GDExtensionPtrUtilityFunction global_scope_print;
 
 void gdextension_print(const char* cstring) {
   GDExtensionString string;
-  string_new_with_utf8_chars(&string, cstring);
+  string_new_with_latin1_chars(string, cstring);
   GDExtensionVariant variant;
-  variant_from_String(&variant, &string);
-  global_print(NULL, (GDExtensionConstVariantPtr[1]) {&variant}, 1);
-  variant_destroy(&variant);
-  destroy_String(&string);
+  variant_from_string(variant, string);
+  global_scope_print(NULL, (GDExtensionConstVariantPtr[1]) {variant}, 1);
+  variant_destroy(variant);
+  string_destroy(string);
 }
 
-void hello_gdextension_initialize(__attribute__((unused)) void *userdata, GDExtensionInitializationLevel p_level) {
-  if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
-    // GDExtension API pointers
-    stringName_from_String = (
-      (GDExtensionInterfaceVariantGetPtrConstructor)GetProcAddress("variant_get_ptr_constructor")
-    )(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2); // Constructor #2
-    GDExtensionInterfaceVariantGetPtrDestructor variant_get_ptr_destructor =
-      (GDExtensionInterfaceVariantGetPtrDestructor)GetProcAddress("variant_get_ptr_destructor");
-    destroy_StringName = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
-    destroy_String = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
-    variant_from_String = (
-      (GDExtensionInterfaceGetVariantFromTypeConstructor)GetProcAddress("get_variant_from_type_constructor")
-    )(GDEXTENSION_VARIANT_TYPE_STRING);
+void hello_gdextension_initialize(void* userdata, GDExtensionInitializationLevel level) {
+  if(level == GDEXTENSION_INITIALIZATION_SCENE) {
+    GDExtensionInterfaceGetProcAddress get_proc_address = userdata;
     // GDExtension pointers
-    string_new_with_latin1_chars = (GDExtensionInterfaceStringNewWithLatin1Chars)GetProcAddress("string_new_with_latin1_chars");
-    string_new_with_utf8_chars = (GDExtensionInterfaceStringNewWithUtf8Chars)GetProcAddress("string_new_with_utf8_chars");
-    variant_destroy = (GDExtensionInterfaceVariantDestroy)GetProcAddress("variant_destroy");
-    // Fetch GDScript methods
-    GDExtensionStringName stringName_print = CString2StringName("print");
-    global_print = (
-      (GDExtensionInterfaceVariantGetPtrUtilityFunction)GetProcAddress("variant_get_ptr_utility_function")
-    )(&stringName_print, HASH_print);
-    destroy_StringName(&stringName_print);
+    string_new_with_latin1_chars =
+      (GDExtensionInterfaceStringNewWithLatin1Chars)get_proc_address("string_new_with_latin1_chars");
+    variant_from_string = (
+      (GDExtensionInterfaceGetVariantFromTypeConstructor)get_proc_address("get_variant_from_type_constructor")
+    )(GDEXTENSION_VARIANT_TYPE_STRING);
+    string_destroy = (
+      (GDExtensionInterfaceVariantGetPtrDestructor)get_proc_address("variant_get_ptr_destructor")
+    )(GDEXTENSION_VARIANT_TYPE_STRING);
+    variant_destroy = (GDExtensionInterfaceVariantDestroy)get_proc_address("variant_destroy");
+    
+    // Fetch GDScript `@GlobalScope#print`
+    GDExtensionStringName string_name_print;
+    (
+      (GDExtensionInterfaceStringNameNewWithLatin1Chars)get_proc_address("string_name_new_with_latin1_chars")
+    )(string_name_print, "print", true);
+    #define HASH_global_scope_print 2648703342 // Fetch hash from `include/extension_api.json`
+    global_scope_print = (
+      (GDExtensionInterfaceVariantGetPtrUtilityFunction)get_proc_address("variant_get_ptr_utility_function")
+    )(string_name_print, HASH_global_scope_print);
+    
     // Hello, World!
     gdextension_print("Hello, GDExtension!");
   }
   
-  printf("initialized at level %u\n", p_level);
+  printf("initialized at level %u\n", level);
 }
-void hello_gdextension_deinitialize(__attribute__((unused)) void *userdata, GDExtensionInitializationLevel p_level) {
-  if(p_level == GDEXTENSION_INITIALIZATION_SCENE) {
+void hello_gdextension_deinitialize(__attribute__((unused)) void* userdata, GDExtensionInitializationLevel level) {
+  if(level == GDEXTENSION_INITIALIZATION_SCENE) {
     // Unset stale pointers
-    global_print = NULL;
-    stringName_from_String = NULL;
-    destroy_StringName = NULL;
-    destroy_String = NULL;
+    global_scope_print = NULL;
+    variant_from_string = NULL;
     string_new_with_latin1_chars = NULL;
-    string_new_with_utf8_chars = NULL;
     variant_destroy = NULL;
+    string_destroy = NULL;
   }
   
-  printf("deinitialized at level %u\n", p_level);
+  printf("deinitialized at level %u\n", level);
 }
 
 __attribute__((used)) GDExtensionBool hello_gdextension_main(
-  GDExtensionInterfaceGetProcAddress p_get_proc_address,
-  __attribute__((unused)) GDExtensionClassLibraryPtr p_library,
+  GDExtensionInterfaceGetProcAddress get_proc_address,
+  __attribute__((unused)) GDExtensionClassLibraryPtr library,
   GDExtensionInitialization* r_initialization
 ) {
   // Set up de/initialization functions
   r_initialization->minimum_initialization_level = GDEXTENSION_INITIALIZATION_SCENE;
-  r_initialization->initialize = &hello_gdextension_initialize;
-  r_initialization->deinitialize = &hello_gdextension_deinitialize;
-  // Save the GDExtensionInterface
-  GetProcAddress = p_get_proc_address;
+  r_initialization->initialize = hello_gdextension_initialize;
+  r_initialization->deinitialize = hello_gdextension_deinitialize;
+  // Save the GDExtensionInterface as our userdata of choice
+  r_initialization->userdata = get_proc_address;
   // Success
   return true;
 }
