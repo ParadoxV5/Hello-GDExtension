@@ -1,6 +1,6 @@
 [configuration]
 entry_symbol = "hello_gdextension_main"
-compatibility_minimum = 4.1
+compatibility_minimum = 4.2
 
 [libraries]
 windows = ".out/libhello.gdextension.dll"
